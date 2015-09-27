@@ -50,31 +50,81 @@ function encodestring($str) {
     return $str;
 }
 
+function GetPageInfo($page_id)
+{
+    global $modx;
+    global $table_prefix;
 
+    $sql = "select * from " . $table_prefix . "site_content where id=" . $page_id;
+    foreach ($modx->query($sql) as $row) {
+        $product = new stdClass();
+        $product->id = $row['id'];
+        $product->introtext = $row['introtext'];
+        $product->description = $row['description'];
+        $product->title = $row['pagetitle'];
+        $product->url = $row['uri'];
+        //теперь дополнительные поля
+        // - 1 - если это подарки, то тут нету дополнительных цен
+        $tv = GetContentTV($page_id);
+        $product->tv = $tv;
+
+    }
+    return $product;
+}
+
+//Инфо по продукту
+
+function GetContentTV($content_id)
+{
+    global $modx;
+    global $table_prefix;
+    $sql_tv = "select
+                            tv.name,
+                            cv.value
+
+                            from " . $table_prefix . "site_tmplvar_contentvalues cv
+
+                            join " . $table_prefix . "site_tmplvars tv
+                            on tv.id=cv.tmplvarid
+
+                            where cv.contentid=" . $content_id;
+
+    // echo $sql_tv;
+    foreach ($modx->query($sql_tv) as $row_tv) {
+        $tv[$row_tv['name']] = $row_tv['value'];
+    }
+    return $tv;
+}
+
+
+/*Класс для работы с кораблями*/
 class Ship
 {
-    function GetPageInfo($product_id)
+
+
+/*todo: сделать загрузку кораблей и круизо в модых*/
+
+    /*импортирует кораблей из базы*/
+    function ImportShips()
+    {
+        global $modx;
+        global $table_prefix;
+    }
+
+    /*получить InnerID корабля*/
+    function GetShipInnerID($content_id)
+    {
+        global $modx;
+        global $table_prefix;
+    }
+
+
+    /*Информация в ввиде объекта о корабля по его внутреннему номеру*/
+    function GetShipInfo($ship_id)
     {
         global $modx;
         global $table_prefix;
 
-        $sql = "select * from " . $table_prefix . "site_content where id=" . $product_id;
-        foreach ($modx->query($sql) as $row) {
-            $product = new stdClass();
-            $product->id = $row['id'];
-            $product->introtext = $row['introtext'];
-            $product->description = $row['description'];
-            $product->title = $row['pagetitle'];
-            $product->url = $row['uri'];
-            //теперь дополнительные поля
-            // - 1 - если это подарки, то тут нету дополнительных цен
-            $tv = $this->GetContentTV($product_id);
-            $product->tv = $tv;
-
-        }
-        return $product;
-
     }
 
-/*todo: сделать загрузку кораблей и круизо в модых*/
 }
