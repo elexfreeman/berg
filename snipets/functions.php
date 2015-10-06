@@ -6,7 +6,7 @@
  * Time: 6:40
  */
 
-$shipKey='14974160168740411855';
+$shipKey='ad441cf7449bc9af3977e6b0c2a6806e3655247c';
 
 function rus2translit($string) {
     $converter = array(

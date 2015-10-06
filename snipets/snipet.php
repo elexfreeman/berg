@@ -7,3 +7,6 @@
  */
 
 include "snipets/ship.class.php";
+
+$dd = new Ship();
+$dd->LoadShipsList();
