@@ -21,7 +21,7 @@ class Ship
     /*todo: загрузка TV
     - t_title название теплохода
     - t_inner_id внутренний номер в базе
-    - t_title_img
+    - t_title_img Титульная фотография теплохода
     */
     function LoadShipsList()
     {
@@ -40,6 +40,40 @@ class Ship
             $this->IncertShip($product);
         }
 
+    }
+
+    function GetTV_Id_ByName($TV_name)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $TV_id=0;
+        $sql="select * from ".$table_prefix."tmplvars where name='".$TV_name."'";
+
+        foreach ($modx->query($sql) as $row_tv) {
+            $TV_id = $row_tv['id'];
+        }
+
+        return $TV_id;
+    }
+
+    function IncertPageTV($page_id,$tv_name,$tv_value)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $tv_id=$this->GetTV_Id_ByName($tv_name);
+        if ($tv_id == 0) {
+            $sql_modx_vars = "INSERT INTO " . $table_prefix . "site_tmplvar_contentvalues
+(tmplvarid,contentid,value) VALUES ('" . $tv_id . "','".$page_id."','".$tv_value."');";
+            echo $sql_modx_vars . "<br>";
+            $modx->query($sql_modx_vars);
+        } else {
+            $sql_modx_vars = "update " . $table_prefix . "site_tmplvar_contentvalues
+            set value='".$tv_value."' where  (tmplvarid='" . $tv_id . "')and(contentid='".$page_id."')";
+            echo $sql_modx_vars . "<br>";
+            $modx->query($sql_modx_vars);
+        }
     }
 
     /*Вставляет в базу один корабль из объекта $Ship*/
@@ -87,7 +121,18 @@ false, false, false, false, false, 'modDocument', 'web', 1,
             echo "--------------------- ПРОДУКТ ------------------------";
             echo $sql_product . "<br>";
             $modx->query($sql_product);
-            return $modx->lastInsertId();
+            $product_id = $modx->lastInsertId();
+
+            $this->IncertPageTV($product_id,'t_title',$Ship->ShipName);
+            $this->IncertPageTV($product_id,'t_inner_id',$Ship->inner_id);
+            $this->IncertPageTV($product_id,'t_title_img','');
+
+
+
+            //modx_site_tmplvar_templates - содежит связь между полями и шаблонами
+            //modx_site_tmplvar_contentvalues - содежит значения полей в странице
+            //modx_site_tmplvars - поля
+            //modx_site_content - страницы
         }
     }
 
