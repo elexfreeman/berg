@@ -96,3 +96,52 @@ function GetContentTV($content_id)
     }
     return $tv;
 }
+
+
+function GetTV_Id_ByName($TV_name)
+{
+    global $modx;
+    global $table_prefix;
+
+    $TV_id=0;
+    $sql="select * from ".$table_prefix."site_tmplvars where name='".$TV_name."'";
+
+    echo $sql;
+    foreach ($modx->query($sql) as $row_tv) {
+        $TV_id = $row_tv['id'];
+    }
+
+    return $TV_id;
+}
+
+function IncertPageTV($page_id,$tv_name,$tv_value)
+{
+    global $modx;
+    global $table_prefix;
+
+    $tv_id=GetTV_Id_ByName($tv_name);
+
+
+    //modx_site_tmplvar_templates - содежит связь между полями и шаблонами
+    //modx_site_tmplvar_contentvalues - содежит значения полей в странице
+    //modx_site_tmplvars - поля
+    //modx_site_content - страницы
+
+    $sql="select * from " . $table_prefix . "site_tmplvar_contentvalues where (contentid='".$page_id."')and(tmplvarid=".$tv_id.") ";
+    $c_tv_id=0;
+    foreach ($modx->query($sql) as $row_c_tv) {
+        $c_tv_id = $row_c_tv['id'];
+    }
+
+    if ($c_tv_id == 0) {
+        $sql_modx_vars = "INSERT INTO " . $table_prefix . "site_tmplvar_contentvalues
+(tmplvarid,contentid,value) VALUES ('" . $tv_id . "','".$page_id."','".$tv_value."');";
+        echo $sql_modx_vars . "<br>";
+        $modx->query($sql_modx_vars);
+    } else {
+        $sql_modx_vars = "update " . $table_prefix . "site_tmplvar_contentvalues
+            set value='".$tv_value."' where  (tmplvarid='" . $tv_id . "')and(contentid='".$page_id."')";
+        echo $sql_modx_vars . "<br>";
+        $modx->query($sql_modx_vars);
+    }
+}

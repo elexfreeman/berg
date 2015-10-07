@@ -23,58 +23,34 @@ class Ship
     - t_inner_id внутренний номер в базе
     - t_title_img Титульная фотография теплохода
     */
+
+
+
+
     function LoadShipsList()
     {
         global $modx;
         global $table_prefix;
         global $shipKey;
         $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Ships/';
-        echo $URL;
-        //var_dump(json_decode(file_get_contents($URL), true));
         $ships=json_decode(file_get_contents($URL), true);
+
+        $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/ShipsImages/';
+        $ships_img=json_decode(file_get_contents($URL), true);
+
         foreach($ships as $inner_id => $ship)
         {
             $product = new stdClass();
             $product->ShipName=$ship;
             $product->inner_id=$inner_id;
+            if(isset($ships_img[$inner_id]))  $product->title_img=$ships_img[$inner_id];
+
+
             $this->IncertShip($product);
         }
 
     }
 
-    function GetTV_Id_ByName($TV_name)
-    {
-        global $modx;
-        global $table_prefix;
-
-        $TV_id=0;
-        $sql="select * from ".$table_prefix."tmplvars where name='".$TV_name."'";
-
-        foreach ($modx->query($sql) as $row_tv) {
-            $TV_id = $row_tv['id'];
-        }
-
-        return $TV_id;
-    }
-
-    function IncertPageTV($page_id,$tv_name,$tv_value)
-    {
-        global $modx;
-        global $table_prefix;
-
-        $tv_id=$this->GetTV_Id_ByName($tv_name);
-        if ($tv_id == 0) {
-            $sql_modx_vars = "INSERT INTO " . $table_prefix . "site_tmplvar_contentvalues
-(tmplvarid,contentid,value) VALUES ('" . $tv_id . "','".$page_id."','".$tv_value."');";
-            echo $sql_modx_vars . "<br>";
-            $modx->query($sql_modx_vars);
-        } else {
-            $sql_modx_vars = "update " . $table_prefix . "site_tmplvar_contentvalues
-            set value='".$tv_value."' where  (tmplvarid='" . $tv_id . "')and(contentid='".$page_id."')";
-            echo $sql_modx_vars . "<br>";
-            $modx->query($sql_modx_vars);
-        }
-    }
 
     /*Вставляет в базу один корабль из объекта $Ship*/
     function IncertShip($Ship)
@@ -122,18 +98,11 @@ false, false, false, false, false, 'modDocument', 'web', 1,
             echo $sql_product . "<br>";
             $modx->query($sql_product);
             $product_id = $modx->lastInsertId();
-
-            $this->IncertPageTV($product_id,'t_title',$Ship->ShipName);
-            $this->IncertPageTV($product_id,'t_inner_id',$Ship->inner_id);
-            $this->IncertPageTV($product_id,'t_title_img','');
-
-
-
-            //modx_site_tmplvar_templates - содежит связь между полями и шаблонами
-            //modx_site_tmplvar_contentvalues - содежит значения полей в странице
-            //modx_site_tmplvars - поля
-            //modx_site_content - страницы
         }
+        IncertPageTV($product_id,'t_title',$Ship->ShipName);
+        IncertPageTV($product_id,'t_inner_id',$Ship->inner_id);
+        IncertPageTV($product_id,'t_title_img',$Ship->title_img);
+        print_r($Ship);
     }
 
 
@@ -152,6 +121,14 @@ false, false, false, false, false, 'modDocument', 'web', 1,
         global $modx;
         global $table_prefix;
 
+    }
+
+    function Run($scriptProperties)
+    {
+        if(isset($scriptProperties['action']))
+        {
+            if($scriptProperties['action']=='LoadShipsList') $this->LoadShipsList();
+        }
     }
 
 }
