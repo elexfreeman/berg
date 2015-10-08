@@ -67,7 +67,7 @@ function GetPageInfo($page_id)
         //теперь дополнительные поля
         // - 1 - если это подарки, то тут нету дополнительных цен
         $tv = GetContentTV($page_id);
-        $product->tv = $tv;
+        $product->TV = $tv;
 
     }
     return $product;
@@ -170,7 +170,7 @@ function IncertPage($page)
     //Ищем такую страницу
     $product_id = 0;
     $sql_page = "select * from " . $table_prefix . "site_content where pagetitle='" . mysql_escape_string($page->pagetitle) . "'";
-    echo $sql_page;
+   // echo $sql_page;
     foreach ($modx->query($sql_page) as $row_page) {
         $product_id = $row_page['id'];
     }
@@ -195,15 +195,16 @@ false, false, false, false, false, 'modDocument', 'web', 1,
  );
 
 ;";
-        echo "------------------------------------------------------";
-        echo "--------------------- ПРОДУКТ ------------------------";
-        echo $sql_product . "<br>";
+
         $modx->query($sql_product);
-        $product_id = $modx->lastInsertId();
+        $page_id = $modx->lastInsertId();
     }
     foreach($page->TV as $TV_name=>$TV_value)
     {
-        IncertPageTV($product_id,$TV_name,$TV_value);
+        IncertPageTV($page_id,$TV_name,$TV_value);
     }
-    print_r($page);
+  //  print_r($page);
+
+    return $page_id;
 }
+
