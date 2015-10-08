@@ -145,3 +145,65 @@ function IncertPageTV($page_id,$tv_name,$tv_value)
         $modx->query($sql_modx_vars);
     }
 }
+
+function IncertPage($page)
+{
+    global $modx;
+    global $table_prefix;
+
+    /*
+   * Описание объекта Ship
+   * $page->pagetitle - Название корабля
+   * $page->parent=2 - Родитель
+   * $page->template=2 - Шаблон
+   * $page->url=2 - Шаблон
+   * $page->TV['t_title']
+   * $page->TV['t_inner_id']
+   * $page->TV['t_title_img']
+   *
+   *$page->alias = encodestring($Ship->TV['t_inner_id'].'_'.$Ship->TV['t_title']);
+   *$page->url="ships/" .$Ship->alias . ".html"
+   * */
+
+    //импортируем страницы
+
+    //Ищем такую страницу
+    $product_id = 0;
+    $sql_page = "select * from " . $table_prefix . "site_content where pagetitle='" . mysql_escape_string($page->pagetitle) . "'";
+    echo $sql_page;
+    foreach ($modx->query($sql_page) as $row_page) {
+        $product_id = $row_page['id'];
+    }
+    if ($product_id == 0) {
+        $sql_product = "INSERT INTO " . $table_prefix . "site_content
+(id, type, contentType, pagetitle, longtitle,
+description, alias, link_attributes,
+published, pub_date, unpub_date, parent,
+isfolder, introtext, content, richtext,
+template, menuindex, searchable,
+cacheable, createdby, createdon,
+editedby, editedon, deleted, deletedon,
+deletedby, publishedon, publishedby,
+menutitle, donthit, privateweb, privatemgr,
+content_dispo, hidemenu, class_key, context_key,
+content_type, uri, uri_override, hide_children_in_tree,
+show_in_tree, properties)
+VALUES (NULL, 'document', 'text/html', '" .  $page->pagetitle . "', '', '', '" . $page->alias . "',
+'', true, 0, 0, " . $page->parent . ", false, '', '', true, " . $page->template . ", 1, true, true, 1, 1421901846, 0, 0, false, 0, 0, 1421901846, 1, '',
+false, false, false, false, false, 'modDocument', 'web', 1,
+ '" . $page->url . "', false, false, true, null
+ );
+
+;";
+        echo "------------------------------------------------------";
+        echo "--------------------- ПРОДУКТ ------------------------";
+        echo $sql_product . "<br>";
+        $modx->query($sql_product);
+        $product_id = $modx->lastInsertId();
+    }
+    foreach($page->TV as $TV_name=>$TV_value)
+    {
+        IncertPageTV($product_id,$TV_name,$TV_value);
+    }
+    print_r($page);
+}

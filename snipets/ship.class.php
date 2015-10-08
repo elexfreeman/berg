@@ -48,9 +48,22 @@ class Ship
 
             $this->IncertShip($product);
         }
-
     }
 
+
+    /*
+     * Описание объекта Ship
+     * $Ship->pagetitle - Название корабля
+     * $Ship->parent=2 - Родитель
+     * $Ship->template=2 - Шаблон
+     * $Ship->url=2 - Шаблон
+     * $Ship->TV['t_title']
+     * $Ship->TV['t_inner_id']
+     * $Ship->TV['t_title_img']
+     *
+     *$Ship->alias = encodestring($Ship->TV['t_inner_id'].'_'.$Ship->TV['t_title']);
+     *$Ship->url="ships/" .$Ship->alias . ".html"
+     * */
 
     /*Вставляет в базу один корабль из объекта $Ship*/
     function IncertShip($Ship)
