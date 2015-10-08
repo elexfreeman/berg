@@ -64,6 +64,7 @@ function GetPageInfo($page_id)
         $product->description = $row['description'];
         $product->title = $row['pagetitle'];
         $product->url = $row['uri'];
+        $product->alias = $row['alias'];
         //теперь дополнительные поля
         // - 1 - если это подарки, то тут нету дополнительных цен
         $tv = GetContentTV($page_id);
@@ -146,6 +147,8 @@ function IncertPageTV($page_id,$tv_name,$tv_value)
     }
 }
 
+
+/*Вставляет страницу в ModX из объекта*/
 function IncertPage($page)
 {
     global $modx;

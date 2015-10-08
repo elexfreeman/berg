@@ -116,6 +116,7 @@ class Ship
     {
         global $shipKey;
         $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Tours/4/';
+        echo $URL;
         $cruis_list=json_decode(file_get_contents($URL), true);
         print_r($cruis_list);
         /*Получаем список теплоходов*/
@@ -132,7 +133,8 @@ class Ship
             foreach($cruis_list as $id=>$cruis)
             {
                 //echo $cruis['name']."\r\n";
-
+                ob_flush();
+                flush(); //ie working must
                 $obj = new stdClass();
 
                 $obj->pagetitle=$cruis['name'];
@@ -155,8 +157,32 @@ class Ship
 
                 $obj->alias = encodestring($obj->TV['kr_inner_id'].'_'.$obj->TV['kr_name']);
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
+                $cruis_alias=$obj->alias;
                 print_r($obj);
-                IncertPage($obj);
+                $cruis_id=IncertPage($obj);
+                /*Вставляем цены*/
+
+
+                /*Нужен выделенный сервер чтобы проставить таймауты*/
+               /* foreach($cruis['prices'] as $price_id=>$price)
+                {
+                    $obj = new stdClass();
+
+                    $obj->pagetitle=$price['name'];
+                    $obj->parent=$cruis_id;
+                    $obj->template=6;
+                    $obj->TV['cr_price_name']=$price['name'];
+                    $obj->TV['cr_price_price_eur']=$price['price_eur'];
+                    $obj->TV['cr_price_price_usd']=$price['price_usd'];
+                    $obj->TV['cr_price_places_total']=$price['places_total'];
+                    $obj->TV['cr_price_places_free']=$price['places_free'];
+
+
+                    $obj->alias = encodestring($price_id.'_'.$obj->pagetitle);
+                    $obj->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj->alias . ".html";
+                    print_r($obj);
+                    IncertPage($obj);
+                }*/
 
             }
         }
@@ -183,7 +209,6 @@ class Ship
                 $obj->template=5;
                 $obj->TV['ph_t_full']=$Images['full'];
 
-
                 $obj->alias = encodestring($obj->pagetitle);
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
                 print_r($obj);
@@ -192,6 +217,13 @@ class Ship
         }
     }
 
+    function tplShipsList()
+    {
+        include "tpl/tplShipsList.php";
+
+    }
+
+
     function Run($scriptProperties)
     {
         if(isset($scriptProperties['action']))
@@ -199,6 +231,7 @@ class Ship
             if($scriptProperties['action']=='LoadShipsList') $this->LoadShipsList();
             if($scriptProperties['action']=='LoadShipsTours') $this->LoadShipsTours();
             if($scriptProperties['action']=='LoadShipsPhoto') $this->LoadShipsPhoto();
+            if($scriptProperties['action']=='tplShipsList') $this->tplShipsList();
         }
     }
 
