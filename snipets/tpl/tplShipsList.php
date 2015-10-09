@@ -1,7 +1,8 @@
 <?php
 $Ships=$this->GetShipsList();
 
-/*?????????? ???? ??????*/
+/*ÐŸÐµÑ€ÐµÐ±ÐµÑ€Ð°ÐµÐ¼ ÑÑ‚Ð¾Ñ‚ ÑÐ¿Ð¸ÑÐ¾Ðº*/
+$i=10;
 foreach($Ships as $key=>$Ship)
 {
     if( $Ship->TV['t_title']!='')
@@ -13,87 +14,42 @@ foreach($Ships as $key=>$Ship)
             <div class="w-row ship-row">
                 <div class="w-col w-col-3"><a class="w-lightbox w-inline-block ship-lightbox" href="#">
                         <img  src="<?php echo $Ship->TV['t_title_img']; ?>">
+                        <?php
+                        $ShipImg=$this->GetShipImg($Ship->id)   ;
+                        $imgList=' ';
+                        foreach($ShipImg as $img)
+                        {
+                            $imgList.='
+                            {
+                            "id": "'.$i.'",
+                            "url": "'.$img->TV['ph_t_full'].'",
+                            "fileName": "5607962f2cdc27cd51edd5f1_SeaLines2 (small).jpg",
+                            "origFileName": "SeaLines2 (small).jpg",
+                            "width": 271,
+                            "height": 187,
+                            "size": 17889,
+                            "type": "image"
+                            },';
+
+                            $i++;
+                        }
+                        $imgList = substr($imgList, 0, -1);
+
+                        ?>
                         <script type="application/json" class="w-json">{
-                                "items": [
-                                    {
-                                        "id": "5607962f2cdc27cd51edd5f1",
-                                        "url": "https://daks2k3a4ib2z.cloudfront.net/55e8880c427f5d0f707c85f3/5607962f2cdc27cd51edd5f1_SeaLines2%20(small).jpg",
-                                        "fileName": "5607962f2cdc27cd51edd5f1_SeaLines2 (small).jpg",
-                                        "origFileName": "SeaLines2 (small).jpg",
-                                        "width": 271,
-                                        "height": 187,
-                                        "size": 17889,
-                                        "type": "image"
-                                    },
-                                    {
-                                        "id": "55e898ae01a3cd432d0442d5",
-                                        "url": "https://daks2k3a4ib2z.cloudfront.net/55e8880c427f5d0f707c85f3/55e898ae01a3cd432d0442d5_vk.jpg",
-                                        "fileName": "example-bg.png",
-                                        "origFileName": "example-bg.png",
-                                        "width": 250,
-                                        "height": 250,
-                                        "size": 3618,
-                                        "type": "image"
-                                    }
+                                "items": [ <?php echo $imgList;?>
+
+
                                 ]
                             }</script>
                     </a></div>
                 <div class="w-col w-col-9 w-clearfix">
                     <div class="ship-description">
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
-                        <div class="ship-cruis">
-                            <div class="ship-cruis-data">2016-07-15&nbsp;2016-07-17</div>
-                            <div class="ship-cruis-caption"><strong>???????? ??????: </strong>??????????
-                                ??????????? ? ???
-                            </div>
-                            <div class="ship-cruis-sity"><strong>???????:</strong>&nbsp;?????? (???) – ????? –
-                                ?????? ???????? – ?????? (???)
-                            </div>
-                        </div>
+
+                        <?php
+                        $this->tplShipCruisList($Ship->id);
+                        ?>
+
                     </div>
                 </div>
             </div>

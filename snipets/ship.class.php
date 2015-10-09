@@ -16,6 +16,11 @@ class Ship
 
     public $ShipsParent = 2;
     public $ShipsTemplate = 2;
+    public $CruisTemplate = 3;
+    public $ShipPhotoTemplate = 5;
+    public $CruisPriceTemplate = 5;
+
+
 /*todo: сделать загрузку кораблей и круизо в модых*/
 
 
@@ -139,7 +144,7 @@ class Ship
 
                 $obj->pagetitle=$cruis['name'];
                 $obj->parent=$Ship->id;
-                $obj->template=3;
+                $obj->template=$this->CruisTemplate;
                 $obj->TV['kr_name']=$cruis['name'];
                 $obj->TV['kr_inner_id']=$id;
                 $obj->TV['kr_date_start']=$cruis['date_start'];
@@ -206,8 +211,9 @@ class Ship
 
                 $obj->pagetitle='Img_'.$key."_".$id;
                 $obj->parent=$Ship->id;
-                $obj->template=5;
+                $obj->template=$this->ShipPhotoTemplate;
                 $obj->TV['ph_t_full']=$Images['full'];
+                $obj->TV['ph_t_thumbnail']=$Images['thumbnail'];
 
                 $obj->alias = encodestring($obj->pagetitle);
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
@@ -220,7 +226,49 @@ class Ship
     function tplShipsList()
     {
         include "tpl/tplShipsList.php";
+    }
 
+    function GetShipImg($ship_id)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $sql="select * from ".$table_prefix."site_content where (parent=".$ship_id.")and(template=".$this->ShipPhotoTemplate.")";
+        $obj = array();
+        foreach ($modx->query($sql) as $row)
+        {
+            $obj[]=GetPageInfo($row['id']);
+        }
+        return $obj;
+    }
+
+
+    /*Получает список круизов для теплохода*/
+    function GetShipCruisList($ship_id)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $sql="select * from ".$table_prefix."site_content where (parent=".$ship_id.")and(template=".$this->CruisTemplate.")";
+       // echo $sql;
+        $obj = array();
+        foreach ($modx->query($sql) as $row)
+        {
+            $tem=GetPageInfo($row['id']);
+            if((isset($tem->TV['kr_route_name']))and($tem->TV['kr_route_name']!=''))  $obj[]=$tem;
+        }
+        return $obj;
+    }
+
+    /*Вывод списка круизов для теплохода*/
+    function tplShipCruisList($ship_id)
+    {
+        include "tpl/tplShipCruisList.php";
+    }
+
+    function tplSearchForm()
+    {
+        include "tpl/tplSearchForm.php";
     }
 
 
@@ -232,6 +280,8 @@ class Ship
             if($scriptProperties['action']=='LoadShipsTours') $this->LoadShipsTours();
             if($scriptProperties['action']=='LoadShipsPhoto') $this->LoadShipsPhoto();
             if($scriptProperties['action']=='tplShipsList') $this->tplShipsList();
+            if($scriptProperties['action']=='tplShipCruisList') $this->tplShipCruisList();
+            if($scriptProperties['action']=='tplSearchForm') $this->tplSearchForm();
         }
     }
 
