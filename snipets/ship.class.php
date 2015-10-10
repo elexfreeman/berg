@@ -219,7 +219,7 @@ class Ship
         {
             $obj2 = new stdClass();
 
-            $obj2->pagetitle=$price['name'];
+            $obj2->pagetitle=$city;
             $obj2->parent=$this->CityParent;
             $obj2->template=$this->CityTemplate;
             IncertPage($obj2);
