@@ -6,7 +6,7 @@
  * Time: 15:08
  */
 
-include "snipets/ship.class.php";
+include_once "snipets/ship.class.php";
 
 $dd = new Ship();
 $dd->Run($scriptProperties);

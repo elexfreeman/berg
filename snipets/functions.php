@@ -177,6 +177,8 @@ function IncertPage($page)
     foreach ($modx->query($sql_page) as $row_page) {
         $product_id = $row_page['id'];
     }
+    $page_id=$product_id;
+
     if ($product_id == 0) {
         $sql_product = "INSERT INTO " . $table_prefix . "site_content
 (id, type, contentType, pagetitle, longtitle,
@@ -201,12 +203,17 @@ false, false, false, false, false, 'modDocument', 'web', 1,
 
         $modx->query($sql_product);
         $page_id = $modx->lastInsertId();
+        echo "INCERT ".$page_id."\r\n"."<br>";
+    }
+    else
+    {
+        echo "UPDAte PAge"."\r\n"."<br>";
     }
     foreach($page->TV as $TV_name=>$TV_value)
     {
         IncertPageTV($page_id,$TV_name,$TV_value);
     }
-  //  print_r($page);
+    print_r($page);
 
     return $page_id;
 }

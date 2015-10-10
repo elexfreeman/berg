@@ -19,6 +19,8 @@ class Ship
     public $CruisTemplate = 3;
     public $ShipPhotoTemplate = 5;
     public $CruisPriceTemplate = 5;
+    public $CityTemplate = 9;
+    public $CityParent = 4528;
 
 
 /*todo: сделать загрузку кораблей и круизо в модых*/
@@ -120,10 +122,12 @@ class Ship
     function LoadShipsTours()
     {
         global $shipKey;
+        echo "<pre>";
         $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Tours/4/';
         echo $URL;
+        $cities=array();
         $cruis_list=json_decode(file_get_contents($URL), true);
-        print_r($cruis_list);
+       // print_r($cruis_list);
         /*Получаем список теплоходов*/
         $Ships=$this->GetShipsList();
 
@@ -135,6 +139,12 @@ class Ship
             echo $URL."<br>";
             $cruis_list=json_decode(file_get_contents($URL), true);
             /*Перебираем этот список*/
+            echo "-------------------------------------
+            ";
+            echo "-------------------------------------
+            ";
+            echo "Список круизов
+            ";
             foreach($cruis_list as $id=>$cruis)
             {
                 //echo $cruis['name']."\r\n";
@@ -163,34 +173,58 @@ class Ship
                 $obj->alias = encodestring($obj->TV['kr_inner_id'].'_'.$obj->TV['kr_name']);
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
                 $cruis_alias=$obj->alias;
-                print_r($obj);
+                //print_r($obj);
                 $cruis_id=IncertPage($obj);
                 /*Вставляем цены*/
 
+                //Обновляем города
+                $tmp=explode(' – ',$obj->TV['kr_cities']);
+                foreach($tmp as $city)
+                {
+                    $cities[$city]=1;
+                }
+
+
 
                 /*Нужен выделенный сервер чтобы проставить таймауты*/
-               /* foreach($cruis['prices'] as $price_id=>$price)
+                echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                ";
+                echo "Цены
+                ";
+                foreach($cruis['prices'] as $price_id=>$price)
                 {
-                    $obj = new stdClass();
+                    $obj2 = new stdClass();
 
-                    $obj->pagetitle=$price['name'];
-                    $obj->parent=$cruis_id;
-                    $obj->template=6;
-                    $obj->TV['cr_price_name']=$price['name'];
+                    $obj2->pagetitle=$price['name'];
+                    $obj2->parent=$cruis_id;
+                    $obj2->template=6;
+                    $obj2->TV['cr_price_name']=$price['name'];
                     $obj->TV['cr_price_price_eur']=$price['price_eur'];
-                    $obj->TV['cr_price_price_usd']=$price['price_usd'];
-                    $obj->TV['cr_price_places_total']=$price['places_total'];
-                    $obj->TV['cr_price_places_free']=$price['places_free'];
+                    $obj2->TV['cr_price_price_usd']=$price['price_usd'];
+                    $obj2->TV['cr_price_places_total']=$price['places_total'];
+                    $obj2->TV['cr_price_places_free']=$price['places_free'];
 
 
-                    $obj->alias = encodestring($price_id.'_'.$obj->pagetitle);
-                    $obj->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj->alias . ".html";
-                    print_r($obj);
-                    IncertPage($obj);
-                }*/
+                    $obj2->alias = encodestring($price_id.'_'.$obj2->pagetitle);
+                    $obj2->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj2->alias . ".html";
+                   //  print_r($obj2);
+                    IncertPage($obj2);
+                }
 
             }
         }
+
+        /*Вставляем странцы городов*/
+        foreach($cities as $city)
+        {
+            $obj2 = new stdClass();
+
+            $obj2->pagetitle=$price['name'];
+            $obj2->parent=$this->CityParent;
+            $obj2->template=$this->CityTemplate;
+            IncertPage($obj2);
+        }
+        echo "</pre>";
     }
 
 
@@ -280,7 +314,7 @@ class Ship
             if($scriptProperties['action']=='LoadShipsTours') $this->LoadShipsTours();
             if($scriptProperties['action']=='LoadShipsPhoto') $this->LoadShipsPhoto();
             if($scriptProperties['action']=='tplShipsList') $this->tplShipsList();
-            if($scriptProperties['action']=='tplShipCruisList') $this->tplShipCruisList();
+
             if($scriptProperties['action']=='tplSearchForm') $this->tplSearchForm();
         }
     }
