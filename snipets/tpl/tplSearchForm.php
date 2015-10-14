@@ -6,35 +6,54 @@
         <form id="email-form" name="email-form" data-name="Email Form">
             <div class="w-row">
                 <div class="w-col w-col-4">
-                    <div class="w-dropdown drop-select-teplohd" data-delay="0">
-                        <div class="w-dropdown-toggle drop-teplohod">
-                            <div class="drop-teplohod-text">ГОРОд ОТПРАВЛЕНИЯ</div>
-                            <div class="w-icon-dropdown-toggle"></div>
-                        </div>
-                        <nav class="w-dropdown-list"><a class="w-dropdown-link" href="#">Link 1</a><a
-                                class="w-dropdown-link" href="#">Link 2</a><a class="w-dropdown-link"
-                                                                              href="#">Link 3</a></nav>
-                    </div>
-                    <div class="w-dropdown drop-select-teplohd" data-delay="0">
-                        <div class="w-dropdown-toggle drop-teplohod">
-                            <div class="drop-teplohod-text">город посещения</div>
-                            <div class="w-icon-dropdown-toggle"></div>
-                        </div>
-                        <nav class="w-dropdown-list"><a class="w-dropdown-link" href="#">Link 1</a><a
-                                class="w-dropdown-link" href="#">Link 2</a><a class="w-dropdown-link"
-                                                                              href="#">Link 3</a></nav>
-                    </div>
+
+
+                    <div class="drop-teplohod-text">ГОРОд ОТПРАВЛЕНИЯ</div>
+                    <select  class="w-input drop-teplohod " id="city_start">
+                        <option>-</option>
+                        <?php
+                        $citys=$this->GetShipsCityList();
+                        foreach($citys as $city=> $t)
+                        {
+                            ?>
+                            <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+
+
+
+                    <div class="drop-teplohod-text">город посещения</div>
+                    <select  class="w-input drop-teplohod " id="city">
+                        <option>-</option>
+                        <?php
+                        $citys=$this->GetShipsCityList();
+                        foreach($citys as $city=> $t)
+                        {
+                            ?>
+                            <option value="<?php echo $city; ?>"><?php echo $city; ?></option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+
                 </div>
-                <div class="w-col w-col-4"><label class="search-label">Дата отправления:</label>
+
+
+                <div class="w-col w-col-4">
+                    <label class="search-label">Дата отправления:</label>
 
                     <div class="w-row">
-                        <div class="w-col w-col-6 date-col"><input class="w-input date-input" id="field-5"
+                        <div class="w-col w-col-6 date-col">
+                            <input class="w-input date-input date_picker" id="date_start"
                                                                    type="text" placeholder="с:"
-                                                                   name="field-5" required="required"
-                                                                   data-name="Field 5"></div>
-                        <div class="w-col w-col-6"><input class="w-input date-input" id="field-6"
-                                                          type="text" placeholder="по:" name="field-6"
-                                                          required="required" data-name="Field 6"></div>
+                                                                   name="date_start" required="required"
+                                                                   data-name="date_start"></div>
+                        <div class="w-col w-col-6">
+                            <input class="w-input date-input date_picker" id="date_stop"
+                                                          type="text" placeholder="по:" name="date_stop"
+                                                          required="required" data-name="date_stop"></div>
                     </div>
                     <div class="w-checkbox kruis-weekend"><input class="w-checkbox-input" id="node"
                                                                  type="checkbox"
@@ -43,18 +62,26 @@
                 </div>
                 <div class="w-col w-col-4">
                     <div class="w-dropdown drop-select-teplohd" data-delay="0">
-                        <div class="w-dropdown-toggle drop-teplohod">
-                            <div class="drop-teplohod-text">ТЕПЛОХОД</div>
-                            <div class="w-icon-dropdown-toggle"></div>
-                        </div>
-                        <nav class="w-dropdown-list"><a class="w-dropdown-link" href="#">Link 1</a><a
-                                class="w-dropdown-link" href="#">Link 2</a><a class="w-dropdown-link"
-                                                                              href="#">Link 3</a></nav>
+                        <div class="drop-teplohod-text">теплоход</div>
+                        <select  class="w-input drop-teplohod " id="ship">
+                            <option>-</option>
+                            <?php
+                            $ships=$this->GetShipsList();
+                            foreach($ships as $ship)
+                            {
+                                ?>
+                                <option value="<?php echo $ship->id; ?>"><?php echo $ship->title; ?></option>
+                                <?php
+                            }
+
+                            ?>
+                        </select>
+
                     </div>
                 </div>
             </div>
             <div class="w-clearfix">
-                <div class="button-search">Поиск</div>
+                <div class="button-search click" onclick="Search();">Поиск</div>
             </div>
         </form>
         <div class="w-form-done"><p>Thank you! Your submission has been received!</p></div>

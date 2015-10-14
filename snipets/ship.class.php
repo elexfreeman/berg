@@ -21,6 +21,10 @@ class Ship
     public $CruisPriceTemplate = 5;
     public $CityTemplate = 9;
     public $CityParent = 4528;
+    public $PriceTemplate = 6;
+    public $ExTemplate = 10;
+
+
 
 
     function LoadShipsList()
@@ -125,9 +129,73 @@ class Ship
         //print_r($Ships);
     }
 
+
+    /*Список городов выбраных кораблей*/
     function GetShipsCityList()
     {
+        global $modx;
+        global $table_prefix;
+        $sql="	select
+	kr.id kr_id,
+	kr.pagetitle kr_title,
+	tv.name tv_name,
+	cv.value tv_value
 
+
+	from " . $table_prefix . "site_content kr
+
+	left join " . $table_prefix . "site_tmplvar_contentvalues cv
+	on kr.id=cv.contentid
+
+	left join " . $table_prefix . "site_tmplvars tv
+	on tv.id=cv.tmplvarid
+
+	where (kr.parent in
+				(
+
+			-- ********************************
+				select ship_id id from
+				(
+				select
+				ships.id ship_id,
+				ships.pagetitle ship_title,
+				tv.name tv_name,
+				cv.value tv_value
+
+
+				from " . $table_prefix . "site_content ships
+
+				left join " . $table_prefix . "site_tmplvar_contentvalues cv
+				on ships.id=cv.contentid
+
+				left join " . $table_prefix . "site_tmplvars tv
+				on tv.id=cv.tmplvarid
+
+
+				where (ships.parent=".$this->ShipsParent.")and(tv.name='t_in_filtr')
+
+				) ships_tbl
+			-- ********************************
+			)
+)
+
+and(kr.template=".$this->CruisTemplate." )and(tv.name='kr_cities')
+order by cv.value
+";
+
+
+        $citiesy=array();
+
+        foreach ($modx->query($sql) as $row_c_tv)
+        {
+            $tmp=explode(" – ",$row_c_tv['tv_value']);
+
+            foreach($tmp as $city)
+            {
+                $citiesy[$city]=1;
+            }
+        }
+        return $citiesy;
     }
 
 
@@ -147,6 +215,10 @@ class Ship
         /*Перебераем этот список*/
         foreach($Ships as $key=>$Ship)
         {
+
+            echo "Корбель \r\n";
+            print_r($Ship);
+
             /*Загружаем список круизов для теплохода*/
             $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Tours/'.$Ship->TV['t_inner_id'].'/';
             echo $URL."<br>";
@@ -187,7 +259,9 @@ class Ship
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
                 $cruis_alias=$obj->alias;
                 //print_r($obj);
+                echo "Круиз \r\n";
                 $cruis_id=IncertPage($obj);
+                $cruis_inner_id=$obj->TV['kr_inner_id'];
                 /*Вставляем цены*/
 
                 //Обновляем города
@@ -210,9 +284,9 @@ class Ship
 
                     $obj2->pagetitle=$price['name'];
                     $obj2->parent=$cruis_id;
-                    $obj2->template=6;
+                    $obj2->template=$this->PriceTemplate;
                     $obj2->TV['cr_price_name']=$price['name'];
-                    $obj->TV['cr_price_price_eur']=$price['price_eur'];
+                    $obj2->TV['cr_price_price_eur']=$price['price_eur'];
                     $obj2->TV['cr_price_price_usd']=$price['price_usd'];
                     $obj2->TV['cr_price_places_total']=$price['places_total'];
                     $obj2->TV['cr_price_places_free']=$price['places_free'];
@@ -226,6 +300,36 @@ class Ship
 
 
                 /*Загружаем экскурсии*/
+                echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                ";
+                echo "экскурсии
+                ";
+                $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Excursions/'.$Ship->TV['t_inner_id'].'/'.$cruis_inner_id."/";
+                echo $URL."<br>";
+                $ex_list=json_decode(file_get_contents($URL), true);
+                foreach($ex_list as $ex_inner_id=>$ex)
+                {
+
+                    ob_flush();
+                    flush(); //ie working must
+                    $obj2 = new stdClass();
+
+                    $obj2->pagetitle=$ex_inner_id."_".$ex['city'];
+                    $obj2->parent=$cruis_id;
+                    $obj2->template=$this->ExTemplate;
+                    $obj2->TV['ex_city']=$ex['city'];
+                    $obj2->TV['ex_date_start']=$ex['date_start'];
+                    $obj2->TV['ex_time_start']=$ex['time_start'];
+                    $obj2->TV['ex_date_end']=$ex['date_end'];
+                    $obj2->TV['ex_time_end']=$ex['time_end'];
+                    $obj2->TV['ex_description']=$ex['description'];
+
+
+                    $obj2->alias = encodestring($ex_inner_id."_".$obj2->pagetitle);
+                    $obj2->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj2->alias . ".html";
+                    //  print_r($obj2);
+                    IncertPage($obj2);
+                }
 
             }
         }
@@ -322,6 +426,7 @@ class Ship
     }
 
 
+    /*Главная функция для снипита*/
     function Run($scriptProperties)
     {
         if(isset($scriptProperties['action']))
@@ -332,7 +437,19 @@ class Ship
             if($scriptProperties['action']=='tplShipsList') $this->tplShipsList();
 
             if($scriptProperties['action']=='tplSearchForm') $this->tplSearchForm();
+            if($scriptProperties['action']=='GetShipsCityList') echo $this->GetShipsCityList();
+            if($scriptProperties['action']=='ajax') $this->Ajax();
         }
+    }
+
+    /*Ajax - вывод*/
+    function Ajax()
+    {
+        if(isset($_GET['action']))
+        {
+            if($_GET['action']=='GetShipsCityList') echo $this->GetShipsCityList();
+        }
+
     }
 
 }

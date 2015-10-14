@@ -137,12 +137,12 @@ function IncertPageTV($page_id,$tv_name,$tv_value)
     if ($c_tv_id == 0) {
         $sql_modx_vars = "INSERT INTO " . $table_prefix . "site_tmplvar_contentvalues
 (tmplvarid,contentid,value) VALUES ('" . $tv_id . "','".$page_id."','".$tv_value."');";
-        echo $sql_modx_vars . "<br>";
+     //   echo $sql_modx_vars . "<br>";
         $modx->query($sql_modx_vars);
     } else {
         $sql_modx_vars = "update " . $table_prefix . "site_tmplvar_contentvalues
             set value='".$tv_value."' where  (tmplvarid='" . $tv_id . "')and(contentid='".$page_id."')";
-        echo $sql_modx_vars . "<br>";
+      ///  echo $sql_modx_vars . "<br>";
         $modx->query($sql_modx_vars);
     }
 }
