@@ -23,16 +23,6 @@ class Ship
     public $CityParent = 4528;
 
 
-/*todo: сделать загрузку кораблей и круизо в модых*/
-
-
-    /*Загружает список кораблей из сервиса*/
-    /*todo: загрузка TV
-    - t_title название теплохода
-    - t_inner_id внутренний номер в базе
-    - t_title_img Титульная фотография теплохода
-    */
-
     function LoadShipsList()
     {
         global $modx;
@@ -106,14 +96,37 @@ class Ship
         global $modx;
         global $table_prefix;
 
-        $sql="select * from ".$table_prefix."site_content where parent=".$this->ShipsParent;
+
+        $sql="select
+                    ships.id ship_id,
+                    ships.pagetitle ship_title,
+                    tv.name tv_name,
+                    cv.value tv_value
+
+
+                    from ".$table_prefix."site_content ships
+
+                    left join ".$table_prefix."site_tmplvar_contentvalues cv
+                    on ships.id=cv.contentid
+
+                    left join ".$table_prefix."site_tmplvars tv
+                    on tv.id=cv.tmplvarid
+
+
+                    where (ships.parent=".$this->ShipsParent.")and(tv.name='t_in_filtr')
+
+";
         $Ships = array();
         foreach ($modx->query($sql) as $row)
         {
-            $Ships[]=GetPageInfo($row['id']);
+            $Ships[]=GetPageInfo($row['ship_id']);
         }
         return $Ships;
         //print_r($Ships);
+    }
+
+    function GetShipsCityList()
+    {
 
     }
 
@@ -211,11 +224,14 @@ class Ship
                     IncertPage($obj2);
                 }
 
+
+                /*Загружаем экскурсии*/
+
             }
         }
 
         /*Вставляем странцы городов*/
-        foreach($cities as $city)
+        foreach($cities as $city=>$val)
         {
             $obj2 = new stdClass();
 
