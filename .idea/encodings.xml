@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/LoadCauts.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/develop/description.txt" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/js/core.js" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/snipets/tpl/tplBron.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/snipets/tpl/tplSearchForm.php" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/snipets/tpl/tplSearchResult.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/snipets/tpl/tplShipCruisList.php" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/snipets/tpl/tplShipsList.php" charset="UTF-8" />
   </component>

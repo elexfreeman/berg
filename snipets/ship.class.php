@@ -16,13 +16,19 @@ class Ship
 
     public $ShipsParent = 2;
     public $ShipsTemplate = 2;
+
     public $CruisTemplate = 3;
+
     public $ShipPhotoTemplate = 5;
     public $CruisPriceTemplate = 5;
     public $CityTemplate = 9;
     public $CityParent = 4528;
     public $PriceTemplate = 6;
     public $ExTemplate = 10;
+    public $CautaTemplate = 4;
+
+    public $ZayavkaTemplate = 11;
+    public $ZayavkaParent = 20303;
 
 
 
@@ -120,6 +126,7 @@ class Ship
                     where (ships.parent=".$this->ShipsParent.")and(tv.name='t_in_filtr')
 
 ";
+        echo $sql;
         $Ships = array();
         foreach ($modx->query($sql) as $row)
         {
@@ -198,6 +205,149 @@ order by cv.value
         return $citiesy;
     }
 
+    //ЗАгрузка статусов кают
+    function LoadCauts()
+    {
+        global $modx;
+        global $table_prefix;
+        global $shipKey;
+        echo "<pre>";
+        $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/Tours/4/';
+        echo $URL;
+
+       /* $cruis_list=json_decode(file_get_contents($URL), true);*/
+
+/*
+        $sql="select
+               ships.id ship_id,
+                ships.alias ship_aliac,
+                ships.pagetitle ship_title,
+                cruis.id cruis_id,
+                cruis.alias cruis_aliac,
+                cruis.pagetitle cruis_title
+
+                from modx_site_content ships
+
+
+                join modx_site_content cruis
+                on cruis.parent=ships.id
+
+                 where
+                 (ships.template=".$this->ShipsTemplate.")and(cruis.template=".$this->CruisTemplate.")";
+*/
+        $Ships=$this->GetShipsList();
+       // print_r($Ships);
+
+        /*Перебераем этот список*/
+        foreach($Ships as $key=>$ship)
+        {
+            echo "********// ship ".$ship->title."\r\n";
+            $cruis_list=$this->GetShipCruisList($ship->id);
+            foreach($cruis_list as $cr_id=>$cruis)
+            {
+                echo "********* CRUIS".$cruis->title."\r\n";
+                $URL='http://api.infoflot.com/JSON/'.
+                    $this->shipKey.'/CabinsStatus/'.$ship->TV['t_inner_id'].'/'.$cruis->TV['kr_inner_id']."/";
+                echo $URL."\r\n";
+                $cauta_list=json_decode(file_get_contents($URL), true);
+               // print_r($cauta_list);
+                foreach($cauta_list as $id=>$cauta)
+                {
+                    echo "********* cauta".$cauta['name']."\r\n";
+                   /* ob_flush();
+                    flush();*/
+                     //ie working must
+                    $obj = new stdClass();
+
+                    $obj->pagetitle=$ship->alias."-".$cruis->alias."-".$id."_".$cauta['name'];
+                    $obj->parent=$cruis->id;
+                    $obj->template=$this->CautaTemplate;
+                    $obj->TV['k_name']=$cauta['name'];
+                    $obj->TV['k_type']=$cauta['type'];
+                    $obj->TV['k_deck']=$cauta['deck'];
+                    $obj->TV['k_separate']=$cauta['separate'];
+                    $obj->TV['k_status']=$cauta['status'];
+                    $obj->TV['k_gender']=$cauta['gender'];
+                    $obj->TV['k_inner_id']=$id;
+
+                    $obj->TV['k_places']='';
+                    $places=$cauta['places'];
+                    foreach($places as $place_id=>$place)
+                    {
+                        $obj->TV['k_places'].="ID:".$place_id."-NAME:".$place['name']."-TYPE:".$place['type']."-POSITION:".$place['position']."-STATUS:".$place['status']."||";
+                    }
+
+                    $obj->alias = encodestring($obj->pagetitle);
+                    $obj->url="ships/".$ship->alias."/".$cruis->alias."/" . $obj->alias.".html";
+
+                  //  echo "=================== Каюта \r\n";
+                   // print_r($obj);
+
+                    echo "cauta_id=".IncertPage($obj)."\r\n";
+                    // $cruis_inner_id=$obj->TV['kr_inner_id'];
+
+                }
+            }
+
+
+         /*  */
+
+        }
+
+
+
+
+/*
+        foreach ($modx->query($sql) as $row)
+        {
+            $ship=GetPageInfo($row['ship_id']);
+            print_r($ship);
+
+            $cruis=GetPageInfo($row['cruis_id']);
+            print_r($cruis);
+
+            $URL='http://api.infoflot.com/JSON/'.$this->shipKey.'/CabinsStatus/'.$ship->TV['k_inner_id'].'/'.$cruis->TV['kr_inner_id']."/";
+            echo $URL;
+
+            $cauta_list=json_decode(file_get_contents($URL), true);
+            foreach($cauta_list as $id=>$cauta)
+            {
+                ob_flush();
+                flush(); //ie working must
+                $obj = new stdClass();
+
+                $obj->pagetitle=$id."_".$cauta['name'];
+                $obj->parent=$row['cruis_id'];
+                $obj->template=$cauta->CruisTemplate;
+                $obj->TV['k_name']=$cauta['name'];
+                $obj->TV['k_type']=$cauta['type'];
+                $obj->TV['k_deck']=$cauta['deck'];
+                $obj->TV['k_separate']=$cauta['separate'];
+                $obj->TV['k_status']=$cauta['status'];
+                $obj->TV['k_gender']=$cauta['gender'];
+                $obj->TV['k_inner_id']=$id;
+
+                $obj->TV['k_places']='';
+                $places=$cauta['places'];
+                foreach($places as $place_id=>$place)
+                {
+                    $obj->TV['k_places']=$place_id."-".$place['name']."-".$place['type']."-".$place['position']."-".$place['status']."||";
+
+                }
+
+                $obj->alias = encodestring($obj->pagetitle);
+                $obj->url="ships/".$row['ship_aliac']."/".$row['cruis_aliac']."/" . $obj->alias.".html";
+
+                //print_r($obj);
+                echo "Круиз \r\n";
+                IncertPage($obj);
+               // $cruis_inner_id=$obj->TV['kr_inner_id'];
+
+            }
+        }
+        */
+    }
+
 
     //Загрузка туров для теплохода
     function LoadShipsTours()
@@ -237,7 +387,7 @@ order by cv.value
                 flush(); //ie working must
                 $obj = new stdClass();
 
-                $obj->pagetitle=$cruis['name'];
+                $obj->pagetitle=$id."_".$cruis['name'];
                 $obj->parent=$Ship->id;
                 $obj->template=$this->CruisTemplate;
                 $obj->TV['kr_name']=$cruis['name'];
@@ -255,7 +405,7 @@ order by cv.value
                 $obj->TV['kr_surchage_meal_rub']=$cruis['surchage_meal_rub'];
                 $obj->TV['kr_surcharge_excursions_rub']=$cruis['surcharge_excursions_rub'];
 
-                $obj->alias = encodestring($obj->TV['kr_inner_id'].'_'.$obj->TV['kr_name']);
+                $obj->alias = encodestring($obj->pagetitle);
                 $obj->url="ships/".$Ship->alias."/".$obj->alias . ".html";
                 $cruis_alias=$obj->alias;
                 //print_r($obj);
@@ -282,17 +432,18 @@ order by cv.value
                 {
                     $obj2 = new stdClass();
 
-                    $obj2->pagetitle=$price['name'];
+                    $obj2->pagetitle=$cruis['name']."_".$price_id."_".$price['name'];
                     $obj2->parent=$cruis_id;
                     $obj2->template=$this->PriceTemplate;
                     $obj2->TV['cr_price_name']=$price['name'];
                     $obj2->TV['cr_price_price_eur']=$price['price_eur'];
+                    $obj2->TV['cr_price_price']=$price['price'];
                     $obj2->TV['cr_price_price_usd']=$price['price_usd'];
                     $obj2->TV['cr_price_places_total']=$price['places_total'];
                     $obj2->TV['cr_price_places_free']=$price['places_free'];
 
 
-                    $obj2->alias = encodestring($price_id.'_'.$obj2->pagetitle);
+                    $obj2->alias = encodestring($obj2->pagetitle);
                     $obj2->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj2->alias . ".html";
                    //  print_r($obj2);
                     IncertPage($obj2);
@@ -300,7 +451,7 @@ order by cv.value
 
 
                 /*Загружаем экскурсии*/
-                echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+              /*  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 ";
                 echo "экскурсии
                 ";
@@ -329,7 +480,7 @@ order by cv.value
                     $obj2->url="ships/".$Ship->alias."/".$cruis_alias."/".$obj2->alias . ".html";
                     //  print_r($obj2);
                     IncertPage($obj2);
-                }
+                }*/
 
             }
         }
@@ -352,6 +503,7 @@ order by cv.value
     {
 
         $Ships=$this->GetShipsList();
+        print_r($Ships);
 
         /*Перебераем этот список*/
         foreach($Ships as $key=>$Ship)
@@ -409,7 +561,25 @@ order by cv.value
         foreach ($modx->query($sql) as $row)
         {
             $tem=GetPageInfo($row['id']);
-            if((isset($tem->TV['kr_route_name']))and($tem->TV['kr_route_name']!=''))  $obj[]=$tem;
+           // if((isset($tem->TV['kr_route_name']))and($tem->TV['kr_route_name']!=''))
+                $obj[]=$tem;
+        }
+        return $obj;
+    }
+
+    /*Возвращает массив прайса курза*/
+    function GetCruisPriceList($cruis_id)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $sql="select * from ".$table_prefix."site_content where (parent=".$cruis_id.")and(template=".$this->PriceTemplate.")";
+        // echo $sql;
+        $obj = array();
+        foreach ($modx->query($sql) as $row)
+        {
+            $tem=GetPageInfo($row['id']);
+            $obj[]=$tem;
         }
         return $obj;
     }
@@ -422,9 +592,108 @@ order by cv.value
 
     function tplSearchForm()
     {
+
         include "tpl/tplSearchForm.php";
     }
 
+
+    function Search()
+    {
+        global $modx;
+        global $table_prefix;
+        include "tpl/tplSearchResult.php";
+    }
+
+
+
+    /*Шаблон формы бронирования*/
+    function tplBron()
+    {
+        global $modx;
+        global $table_prefix;
+        include "tpl/tplBron.php";
+    }
+
+
+    /*список сают круизов*/
+    function GetCautaList($cruis_id)
+    {
+        global $modx;
+        global $table_prefix;
+
+        $sql="select * from ".$table_prefix."site_content where (parent=".$cruis_id.")and(template=".$this->CautaTemplate.")";
+        foreach ($modx->query($sql) as $row)
+        {
+            $tem=GetPageInfo($row['id']);
+            // if((isset($tem->TV['kr_route_name']))and($tem->TV['kr_route_name']!=''))
+            $obj[]=$tem;
+        }
+        return $obj;
+    }
+
+    /*Иформация о каюте в виде объекта*/
+    function GetCautaInfo($cauta_id)
+    {
+        $obj = new stdClass();
+        $cauta=GetPageInfo($cauta_id);
+        $obj->nomer=$cauta->TV['k_name'];
+        $obj->type=$cauta->TV['k_type'];
+        $obj->deck=$cauta->TV['k_deck'];
+        $obj->places=$cauta->TV['k_places'];
+        $obj->deck=$cauta->TV['k_deck'];
+        $obj->inner_id=$cauta->TV['k_inner_id'];
+        $obj->id=$cauta->id;
+        $cruis_id=$cauta->parent;
+        $cruis_price_list=$this->GetCruisPriceList($cruis_id);
+        foreach ($cruis_price_list as $price_id=>$price)
+        {
+            if($obj->type==$price->TV['cr_price_name'])
+            {
+                $obj->price=$price->TV['cr_price_price'];
+                $obj->free_place=$price->TV['cr_price_places_free'];
+            }
+        }
+        return $obj;
+    }
+
+
+    /*==========  ЗАЯВКИ ===============*/
+    /*Добавить заказ от клиента в базц*/
+    function z_add()
+    {
+        $obj = new stdClass();
+
+        $today = date("Y-m-d H:i:s");
+        echo $today;
+
+        $obj->parent=$this->ZayavkaParent;
+        $obj->template=$this->ZayavkaTemplate;
+
+        $obj->TV['z_cauta_nomer']=$_GET['z_cauta_nomer'];
+        $obj->TV['z_cruis_id']=$_GET['z_cruis_id'];
+        $obj->TV['z_info']=$_GET['z_info'];
+        $obj->TV['z_user_email']=$_GET['z_user_email'];
+        $obj->TV['z_user_name']=$_GET['z_user_name'];
+        $obj->TV['z_user_phone']=$_GET['z_user_phone'];
+        $obj->TV['z_date']=$today;
+        $obj->TV['z_status']='Новая';
+
+        $cruis=GetPageInfo($obj->TV['z_cruis_id']);
+        $ship=GetPageInfo($cruis->parent);
+        $obj->TV['z_ship_id']=$ship->id;
+
+        $obj->pagetitle="z_".rand(5, 60)."_".$obj->TV['z_user_name']."_".$obj->TV['z_ship_id']."_". $obj->TV['z_cruis_id']."_". $obj->TV['z_cauta_nomer'];
+        //$obj->pagetitle=$ship;
+
+        $obj->alias = encodestring($obj->pagetitle);
+        $obj->url="zayavki/" .$obj->alias . ".html";
+
+
+        IncertPage($obj);
+    }
+
+
+    /*===================================*/
 
     /*Главная функция для снипита*/
     function Run($scriptProperties)
@@ -434,7 +703,10 @@ order by cv.value
             if($scriptProperties['action']=='LoadShipsList') $this->LoadShipsList();
             if($scriptProperties['action']=='LoadShipsTours') $this->LoadShipsTours();
             if($scriptProperties['action']=='LoadShipsPhoto') $this->LoadShipsPhoto();
+            if($scriptProperties['action']=='LoadCauts') $this->LoadCauts();
+
             if($scriptProperties['action']=='tplShipsList') $this->tplShipsList();
+            if($scriptProperties['action']=='tplBron') $this->tplBron();
 
             if($scriptProperties['action']=='tplSearchForm') $this->tplSearchForm();
             if($scriptProperties['action']=='GetShipsCityList') echo $this->GetShipsCityList();
@@ -447,7 +719,18 @@ order by cv.value
     {
         if(isset($_GET['action']))
         {
-            if($_GET['action']=='GetShipsCityList') echo $this->GetShipsCityList();
+            if ($_GET['action'] == 'GetShipsCityList')
+            {
+                echo $this->GetShipsCityList();
+            }
+            elseif ($_GET['action'] == 'Search')
+            {
+                $this->Search();
+            }
+            elseif ($_GET['action'] == 'z_add')
+            {
+                $this->z_add();
+            }
         }
 
     }

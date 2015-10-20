@@ -10,7 +10,7 @@
 
                     <div class="drop-teplohod-text">ГОРОд ОТПРАВЛЕНИЯ</div>
                     <select  class="w-input drop-teplohod " id="city_start">
-                        <option>-</option>
+                        <option value="">-</option>
                         <?php
                         $citys=$this->GetShipsCityList();
                         foreach($citys as $city=> $t)
@@ -26,7 +26,7 @@
 
                     <div class="drop-teplohod-text">город посещения</div>
                     <select  class="w-input drop-teplohod " id="city">
-                        <option>-</option>
+                        <option value="">-</option>
                         <?php
                         $citys=$this->GetShipsCityList();
                         foreach($citys as $city=> $t)
@@ -64,7 +64,7 @@
                     <div class="w-dropdown drop-select-teplohd" data-delay="0">
                         <div class="drop-teplohod-text">теплоход</div>
                         <select  class="w-input drop-teplohod " id="ship">
-                            <option>-</option>
+                            <option value="">-</option>
                             <?php
                             $ships=$this->GetShipsList();
                             foreach($ships as $ship)
